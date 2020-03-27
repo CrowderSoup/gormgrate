@@ -1,4 +1,6 @@
-# gormgrate
+# gormgrate 
+
+![Build & Test](https://github.com/CrowderSoup/gormgrate/workflows/Go/badge.svg)
 
 Managed manual migrations for GORM
 
@@ -22,7 +24,7 @@ Once you've created a migration, you use `gormgate` in your project like so
 (it's assumed you already have `db` initialized):
 
 ```go 
-files := map["string"]gormgrate.MigrationFile{
+files := map[string]gormgrate.MigrationFile{
     "example": NewExampleMigration(),
 }
 migrator, err := gormgrate.NewMigrator(db, true, files)

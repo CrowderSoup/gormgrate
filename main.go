@@ -18,19 +18,22 @@ type Migrator struct {
 	DB         *gorm.DB
 	Migrations []Migration
 	MigrateUp  bool
-	Files      map[string]MigrationFile
+	Files      []MigrationFile
 }
 
 // Migration a migration
 type Migration struct {
 	gorm.Model
 
-	Name        string `gorm:"type:varchar(100);unique_index"`
-	Succuessful bool
+	Name       string `gorm:"type:varchar(100);unique_index"`
+	Successful bool
 }
 
 // NewMigrator returns a new Migrator
-func NewMigrator(db *gorm.DB, up bool, files map[string]MigrationFile) (*Migrator, error) {
+func NewMigrator(db *gorm.DB, up bool, files []MigrationFile) (*Migrator, error) {
+	// Ensures that migrations table exists on first run
+	db.AutoMigrate(&Migration{})
+
 	var migrations []Migration
 	if err := db.Find(&migrations).Error; err != nil {
 		return nil, err
@@ -62,16 +65,26 @@ func (mig *Migrator) RunMigrations() error {
 				return err
 			}
 
-			migration.Succuessful = true
+			migration.Successful = true
 			mig.updateMigration(migration)
 		}
 	} else {
 		lastMigration := mig.Migrations[len(mig.Files)-1]
-		migrationFile := mig.Files[lastMigration.Name]
+		migrationFile := mig.findFileByName(lastMigration.Name)
 
 		err := mig.runMigrationDown(migrationFile, lastMigration)
 		if err != nil {
 			return err
+		}
+	}
+
+	return nil
+}
+
+func (mig *Migrator) findFileByName(name string) MigrationFile {
+	for _, file := range mig.Files {
+		if file.Name() == name {
+			return file
 		}
 	}
 
@@ -109,7 +122,7 @@ func (mig *Migrator) runMigrationDown(mf MigrationFile, m Migration) error {
 
 func (mig *Migrator) shouldRun(m MigrationFile) bool {
 	for _, migration := range mig.Migrations {
-		if m.Name() == migration.Name && migration.Succuessful {
+		if m.Name() == migration.Name && migration.Successful {
 			return false
 		}
 	}
@@ -133,8 +146,8 @@ func (mig *Migrator) insertIfNotExisting(mf MigrationFile) (*Migration, error) {
 
 	// Insert Migration
 	migration := &Migration{
-		Name:        mf.Name(),
-		Succuessful: false,
+		Name:       mf.Name(),
+		Successful: false,
 	}
 	if err := mig.DB.Create(migration).Error; err != nil {
 		return nil, err
@@ -144,7 +157,7 @@ func (mig *Migrator) insertIfNotExisting(mf MigrationFile) (*Migration, error) {
 }
 
 func (mig *Migrator) updateMigration(m *Migration) error {
-	m.Succuessful = true
+	m.Successful = true
 	if err := mig.DB.Save(m).Error; err != nil {
 		return err
 	}

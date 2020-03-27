@@ -10,16 +10,4 @@ type User struct {
 
 	Email    string `gorm:"type:varchar(100);unique_index"`
 	Password string
-	Profile  Profile
-}
-
-// Profile the users profile
-type Profile struct {
-	gorm.Model
-
-	UserID    uint
-	NickName  string `gorm:"size:128"`
-	FirstName string `gorm:"size:128"`
-	LastName  string `gorm:"size:128"`
-	PhotoURL  string `gorm:"size:2000"`
 }

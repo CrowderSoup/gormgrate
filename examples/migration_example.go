@@ -23,16 +23,14 @@ func (m *exampleMigration) Name() string {
 
 // Up runs the migration
 func (m *exampleMigration) Up(db *gorm.DB) error {
-	// Profile -> User
-	if err := db.Model(&Profile{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT").Error; err != nil {
-		return err
-	}
+	db.Model(&User{}).AddIndex("idx_user_email", "email")
+
+	return nil
 }
 
 // Down rolls back the migration
 func (m *exampleMigration) Down(db *gorm.DB) error {
-	// Profile -> User
-	if err := db.Model(&Profile{}).RemoveForeignKey("user_id", "users(id)").Error; err != nil {
-		return err
-	}
+	db.Model(&User{}).RemoveIndex("idx_user_email")
+
+	return nil
 }

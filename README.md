@@ -22,7 +22,10 @@ Once you've created a migration, you use `gormgate` in your project like so
 (it's assumed you already have `db` initialized):
 
 ```go 
-migrator, err := migrations.NewMigrator(db, true)
+files := map["string"]gormgrate.MigrationFile{
+    "example": NewExampleMigration(),
+}
+migrator, err := gormgrate.NewMigrator(db, true, files)
 if err != nil {
     log.Fatal(err)
 }

@@ -1,6 +1,6 @@
 # gormgrate 
 
-![Build & Test](https://github.com/CrowderSoup/gormgrate/workflows/Go/badge.svg)
+![Build & Test](https://github.com/CrowderSoup/gormgrate/workflows/Build%20&%20Test/badge.svg)
 
 Managed manual migrations for GORM
 
